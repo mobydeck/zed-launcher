@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ZL_DIR="${HOME}/.zl"
+ZL_README_BASENAME="zl.readme.md"
+
+write_embedded_readme() {
+  local readme_path="${ZL_DIR}/${ZL_README_BASENAME}"
+
+  # Only create the help file if it doesn't already exist, to avoid overwriting user edits.
+  if [[ -f "${readme_path}" ]]; then
+    return 0
+  fi
+
+  cat >"${readme_path}" <<'ZL_README_MD'
+# zl (zed-launcher)
+
+`zl` is a tiny launcher for Zed that lets you store “profiles” (plain text files) and quickly open local or remote projects.
+
+## Where profiles live
+
+Profiles are stored in:
+
+- `~/.zl/`
+
+Each file in that directory is a profile.
+
+## Basic usage
+
+### Pick a profile interactively (recommended)
+
+Run:
+
+- `zl`
+
+This uses `tv` (Television) to show an interactive list of files in `~/.zl/`.
+Pick one, and `zl` will open Zed using that profile.
+
+### Create/edit a profile
+
+Run:
+
+- `zl + <profile_name>`
+
+This opens `~/.zl/<profile_name>` in your `$EDITOR` (falls back to `vim`).
+
+### Open a profile directly
+
+Run:
+
+- `zl <profile_name>`
+
+This reads the **first line** of `~/.zl/<profile_name>` and uses it as the CLI arguments to Zed.
+
+## Profile format
+
+A profile is just a text file.
+
+- **Only the first line is used to launch Zed.**
+- Everything after the first line is ignored (useful for notes).
+
+Examples of a first line:
+
+- `~/code/my-project`
+- `ssh://user@host/path/to/project`
+
+`~` or `~/...` at the beginning of the first line is expanded to your home directory.
+
+## Requirements
+
+- `zed` on your `PATH` (or set `LAUNCH_TARGET` to a different command)
+- `tv` (Television) for interactive selection
+- `$EDITOR` set (optional; defaults to `vim`)
+
+## Customizing
+
+By default, `zl` runs `zed`. Override with:
+
+- `LAUNCH_TARGET=zed zl work`
+- `LAUNCH_TARGET=code zl work` (use VS Code if installed)
+
+## Tip
+
+Add notes below the first line in a profile. Only the first line affects launching.
+ZL_README_MD
+}
+
+ensure_zl_dir() {
+  if [[ ! -d "${ZL_DIR}" ]]; then
+    mkdir -p "${ZL_DIR}"
+    write_embedded_readme
+  else
+    # If the directory already exists, still ensure the help file exists.
+    write_embedded_readme
+  fi
+}
+
+pick_file() {
+  command -v tv >/dev/null 2>&1 || {
+    echo "Error: tv is not installed (needed for interactive selection)." >&2
+    exit 1
+  }
+  exec "$0" "$(tv files "${ZL_DIR}")"
+}
+
+open_or_create_profile() {
+  local name=${1:?}
+  local profile_file
+
+  profile_file="$(basename -- "${name}")"
+  profile_file="${ZL_DIR}/${profile_file}"
+
+  if [[ ! -f "${profile_file}" ]]; then
+    echo "ssh://" >>"${profile_file}"
+  fi
+
+  exec "${EDITOR:-vim}" "${profile_file}"
+}
+
+expand_tilde_only() {
+  # Expands a leading "~" or "~/" to $HOME without executing arbitrary code.
+  local s=$1
+  if [[ "${s}" == "~" ]]; then
+    printf '%s\n' "${HOME}"
+  elif [[ "${s}" == "~/"* ]]; then
+    printf '%s\n' "${HOME}/${s:2}"
+  else
+    printf '%s\n' "${s}"
+  fi
+}
+
+main() {
+  ensure_zl_dir
+
+  if [[ $# -lt 1 ]]; then
+    pick_file
+  fi
+
+  if [[ "${1}" == "+" ]]; then
+    [[ -n "${2:-}" ]] || { echo "Usage: $0 + <profile_name>" >&2; exit 1; }
+    open_or_create_profile "${2}"
+  fi
+
+  if [[ "${1}" == "${ZL_README_BASENAME}" ]]; then
+    (echo; echo "Wait... ${ZL_README_BASENAME} is not a valid profile :)"; echo) >&2
+    exit 1
+  fi
+
+  local input_file="${ZL_DIR}/${1}"
+  [[ -f "${input_file}" && -r "${input_file}" ]] || {
+    echo "Cannot read file: ${input_file}" >&2
+    exit 1
+  }
+
+  local first_line=""
+  IFS= read -r first_line < "${input_file}" || true
+
+  local expanded_path
+  expanded_path="$(expand_tilde_only "${first_line}")"
+
+  exec "${LAUNCH_TARGET:-zed}" "${expanded_path}"
+}
+
+main "$@"
