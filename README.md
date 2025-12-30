@@ -23,12 +23,12 @@ It also uses the `tv` app (Television) to provide an interactive picker UI for s
 
 ## Requirements
 
-- Bash (script uses Bash `#!/usr/bin/env bash`)
+- Bash (script uses `#!/usr/bin/env bash`)
 - Zed installed and available as `zed` on your `PATH`
-- Television: [`tv` (Television)](https://github.com/alexpasmantier/television) for interactive profile selection
-- Bat: [`bat` alternative to `cat`](https://github.com/sharkdp/bat) for viewing profiles in Television
-- Fd: [`fd` alternative to `find`](https://github.com/sharkdp/fd) for file search in Television
-- Ripgrep: [`ripgrep` alternative to `grep`](https://github.com/BurntSushi/ripgrep) for text search in Television
+- `tv`: [Television](https://github.com/alexpasmantier/television) for interactive profile selection
+- `bat`: [alternative to `cat`](https://github.com/sharkdp/bat) for viewing profiles in Television
+- `fd`: [alternative to `find`](https://github.com/sharkdp/fd) for file search in Television
+- `ripgrep`: [alternative to `grep`](https://github.com/BurntSushi/ripgrep) for text search in Television
 - Optional: set `$EDITOR` for profile editing (defaults to `vim`)
 
 ---
