@@ -44,8 +44,8 @@ It also uses the `tv` app (Television) to provide an interactive picker UI for s
 2. Install dependencies:
    - macOS: `brew install television bat fd ripgrep`
    - Ubuntu: `sudo apt-get install television bat fd ripgrep`
-
-    > On Ubuntu you may need to add repositories for `television`, `bat`, `fd`, and `ripgrep` if they are not available in the default repositories, or download them from their respective websites.
+   
+      > On Ubuntu you may need to add repositories for `television`, `bat`, `fd`, and `ripgrep` if they are not available in the default repositories, or download them from their respective websites.
 
 2. Then run it from your terminal as:
 
