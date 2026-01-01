@@ -137,7 +137,7 @@ First line:
 
 Run:
 
-- `zl prod`
+- `zl remote-dev`
 
 ### Keep notes per project
 
@@ -160,7 +160,7 @@ By default, the script runs `zed`. You can override it with `LAUNCH_TARGET`.
 Open the same profiles with a different command:
 
 - `LAUNCH_TARGET=code zl my-local` (VS Code, if `code` is installed)
-- `LAUNCH_TARGET=zed-preview zl prod` (if you have an alternate Zed binary)
+- `LAUNCH_TARGET=zed-preview zl my-local` (if you have an alternate Zed binary)
 - `LAUNCH_TARGET=echo zl my-local` (debug: prints what would be executed)
 
 Because the launcher is “read first line → exec a command”, you can adapt it for many workflows beyond Zed.
@@ -169,7 +169,7 @@ Because the launcher is “read first line → exec a command”, you can adapt 
 
 ## Tips
 
-- Use short, memorable profile names (`work`, `prod`, `client-a`, `notes`, etc.).
+- Use short, memorable profile names (`work`, `dev`, `client-a`, `notes`, etc.).
 - Store one profile per repo / environment.
 - Add comments and reminders under the first line—only the first line is used to launch.
 
